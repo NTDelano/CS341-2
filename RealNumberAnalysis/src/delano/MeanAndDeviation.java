@@ -11,25 +11,41 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.Scanner;
-
 import javax.swing.SwingConstants;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JTextArea;
+import java.awt.Color;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class MeanAndDeviation.
+ */
 public class MeanAndDeviation {
 
+	/** The frame. */
 	private JFrame frame;
+
+	/** The Find file btn. */
 	private JButton FindFileBtn;
+
+	/** The Mean area. */
 	private JTextArea MeanArea;
+
+	/** The Standard deviation area. */
 	private JTextArea SDeviationArea;
+
+	/** The lbl new label 1. */
+	private JLabel lblNewLabel_1;
+
+	/** The lbl new label 2. */
+	private JLabel lblNewLabel_2;
 
 	/**
 	 * Launch the application.
+	 *
+	 * @param args the arguments
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
@@ -73,39 +89,50 @@ public class MeanAndDeviation {
 		frame.getContentPane().add(FindFileBtn);
 
 		MeanArea = new JTextArea();
-		MeanArea.setBounds(99, 217, 316, 54);
+		MeanArea.setBounds(150, 250, 200, 50);
 		frame.getContentPane().add(MeanArea);
 
 		SDeviationArea = new JTextArea();
-		SDeviationArea.setBounds(99, 349, 316, 54);
+		SDeviationArea.setBounds(150, 400, 200, 50);
 		frame.getContentPane().add(SDeviationArea);
+
+		lblNewLabel_1 = new JLabel("The Mean of Selected File");
+		lblNewLabel_1.setFont(new Font("Times New Roman", Font.PLAIN, 14));
+		lblNewLabel_1.setForeground(new Color(0, 0, 0));
+		lblNewLabel_1.setHorizontalAlignment(SwingConstants.CENTER);
+		lblNewLabel_1.setBounds(150, 200, 200, 40);
+		frame.getContentPane().add(lblNewLabel_1);
+
+		lblNewLabel_2 = new JLabel("The Standard Deviation of Selected File");
+		lblNewLabel_2.setHorizontalAlignment(SwingConstants.CENTER);
+		lblNewLabel_2.setForeground(Color.BLACK);
+		lblNewLabel_2.setFont(new Font("Times New Roman", Font.PLAIN, 14));
+		lblNewLabel_2.setBounds(10, 350, 466, 40);
+		frame.getContentPane().add(lblNewLabel_2);
 	}
 
+	/**
+	 * Main Method, which will ask the user to select a file using JFileChooser,
+	 * then grab all the values within file, and display the mean and standard
+	 * deviation of all the values.
+	 */
 	private void fileExamination() {
 
+		// Creates an action listener for the button to be pressed
 		FindFileBtn.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
 
+				// Sets the action of the button press to a JFileChooser
 				JFileChooser chooseFile = new JFileChooser();
 				chooseFile.showOpenDialog(null); // replace null with your swing container
+				// The Selected file for which we are examining
 				File fileToExamine = chooseFile.getSelectedFile();
-				// if(returnVal == JFileChooser.APPROVE_OPTION) {
-				// fileToExamine = chooseFile.getSelectedFile();
-				// }
-
+				// List of every line within the selected file
 				LinkedList<String> ListOfFileLines = new LinkedList<String>();
+				// List of values from ListOfFileLines
 				LinkedList<Double> ListOfValues = new LinkedList<Double>();
 				String fname = fileToExamine.getAbsolutePath();
-				Scanner scan = new Scanner(System.in);
-
-				/* enter filename with extension to open and read its content */
-
-				// System.out.print("Enter File Name to Open (with extension like file.txt) :
-				// ");
-				// String line = fileContents.readLine();
-
-				/* this will reference only one line at a time */
 
 				String line = null;
 				try {
@@ -119,107 +146,97 @@ public class MeanAndDeviation {
 						ListOfFileLines.add(line);
 					}
 
-					
-
 					/* always close the file after use */
 					bufferedReader.close();
 				} catch (IOException ex) {
 					MeanArea.setText("Error: Unable to read the File " + fname);
 				}
 
+				// If the file is empty
 				if (ListOfFileLines.isEmpty()) {
-					MeanArea.setText("Error");
+					MeanArea.setText("Error: Nothing is in the File Selected");
 				} else {
-					/*
-					 * ListOfValues = [double(sub.split('.')[1]) for sub in ListOfFileLines];
-					 * 
-					 * for (int i=0; i< ListOfFileLines.size(); i++) { for item in
-					 * ListOfFileLines.get(i): for subitem in item.split(): if(subitem.isdigit()):
-					 * numbers.append(subitem) }
-					 */
-
 					for (int i = 0; i < ListOfFileLines.size(); i++) {
 
+						// Boolean is to help determine whether there are letters in the file, which we
+						// don't want
 						Boolean LetterExistence = false;
+						// Every existence of a space is added as a element of list
 						String[] list = ListOfFileLines.get(i).split(" ");
-						
 
 						for (int k = 0; k < list.length; k++) {
+							// if a letter exists, break the for loop and display an error
 							if (list[k].matches("[a-zA-Z]+")) {
 								LetterExistence = true;
 								break;
-							} else if (list[k].contains(" ") || list[k].isBlank()) {
-								list[k] = null;
 							}
-							else {
-
+							// If there is an empty element, set it to null
+							else if (list[k].contains(" ") || list[k].isBlank()) {
+								list[k] = null;
+							} else {
+								// If element isn't empty or have letters, transform it into a double and add to
+								// list of values
 								ListOfValues.add(Double.parseDouble(list[k]));
 							}
 						}
+						// If a letter exists, display an error
 						if (LetterExistence == true) {
 							MeanArea.setText("Error: Only numbers allowed in file");
 							break;
 						}
-						
+
 					}
-					System.out.println(ListOfValues);
-					
+					// Find mean and standard deviation
 					String meanOfFile = String.valueOf(findMean(ListOfValues));
 					String DeviationOfFile = String.valueOf(findDeviation(ListOfValues));
-					
+
 					MeanArea.setText(meanOfFile);
 					SDeviationArea.setText(DeviationOfFile);
-					
-				}
 
-				/*
-				 * 
-				 * JFileChooser chooseFile = new JFileChooser(); int returnVal =
-				 * chooseFile.showOpenDialog(null); //replace null with your swing container
-				 * File fileToExamine; if(returnVal == JFileChooser.APPROVE_OPTION) {
-				 * fileToExamine = chooseFile.getSelectedFile(); }
-				 * 
-				 * BufferedReader fileContents = new BufferedReader(new
-				 * FileReader(fileToExamine)); LinkedList<String> ListOfFileLines = new
-				 * LinkedList<String>(); String line = fileContents.readLine(); String AllText =
-				 * ""; while(line != null){ ListOfFileLines.add(line); line =
-				 * fileContents.readLine(); }
-				 */
+				}
 			}
 
 		});
 
 	}
-	
-	public static double findMean(LinkedList<Double> listOfValues)
-    {
-        double sum = 0;
 
-        for (int i = 0; i < listOfValues.size(); i++)
-        {
-            sum += listOfValues.get(i);
+	/**
+	 * Find the mean of the selected linked list
+	 *
+	 * @param nums The list of numbers for which we are trying to find the mean of
+	 * @return the mean of the selected list as a double
+	 */
+	public static double findMean(LinkedList<Double> nums) {
+		double sum = 0;
 
-        }
+		for (int i = 0; i < nums.size(); i++) {
+			sum += nums.get(i);
 
-        return sum / listOfValues.size();
+		}
 
-    }
-	
-	public static double findDeviation(LinkedList<Double> nums)
-    {
+		return sum / nums.size();
 
-        double mean = findMean(nums);
+	}
 
-        double squareSum = 0;
+	/**
+	 * Find deviation of the selected linked list
+	 *
+	 * @param nums The list of numbers for which we are trying to find the deviation of
+	 * @return the deviation of the selected list as a double
+	 */
+	public static double findDeviation(LinkedList<Double> nums) {
 
-        for (int i = 0; i < nums.size(); i++)
-        {
+		double mean = findMean(nums);
 
-            squareSum += Math.pow(nums.get(i) - mean, 2);
+		double squareSum = 0;
 
-        }
+		for (int i = 0; i < nums.size(); i++) {
 
-        return Math.sqrt((squareSum) / (nums.size() - 1));
+			squareSum += Math.pow(nums.get(i) - mean, 2);
 
-    }
+		}
+
+		return Math.sqrt((squareSum) / (nums.size() - 1));
+
+	}
 }
