@@ -1,0 +1,3 @@
+The associated program is intended to create a simple JFrame and display the mean and deviation of all the values in a specific file. 
+It uses a button and a JFileChooser to select the file. Then examines for errors, such as an empty file, the file containing letters,
+and non existent files. It grabs all the values from the file, puts it into a linked list, and uses two methods to find the mean and deviation.
